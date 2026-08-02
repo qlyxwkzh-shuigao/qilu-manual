@@ -2,171 +2,289 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>齐鲁搬砖手册 - 会诊查询</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>齐鲁搬砖手册 — 会诊查询</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --bg: #f8fafc;
+  --card: #fff;
+  --text: #1e293b;
+  --text-secondary: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #f0f4f8; color: #333; font-size: 14px; line-height: 1.6;
-  max-width: 600px; margin: 0 auto; min-height: 100vh;
+  background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6;
+  min-height: 100vh;
 }
 
-/* 顶部导航 */
+/* ========== 顶部导航 ========== */
 .header {
-  background: linear-gradient(135deg, #1a5f8a, #2C7FB8, #3a8ec9);
-  color: #fff; padding: 16px 20px; position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 40%, #3b82f6 100%);
+  color: #fff; padding: 28px 0 24px; box-shadow: 0 2px 16px rgba(37,99,235,.15);
+  position: sticky; top: 0; z-index: 100;
 }
-.header h1 { font-size: 20px; font-weight: 700; }
-.header .sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+.header-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-title { font-size: 22px; font-weight: 700; letter-spacing: .5px; }
+.header-stats {
+  display: flex; gap: 24px; font-size: 13px; opacity: .85;
+}
+.header-stats span { white-space: nowrap; }
+.header-stats .num { font-weight: 700; font-size: 18px; }
 
-/* 搜索栏 */
-.search-wrap { padding: 12px 16px; }
+/* ========== 搜索栏 ========== */
+.search-bar {
+  position: sticky; top: 84px; z-index: 99;
+  background: var(--bg); padding: 16px 0 8px;
+}
+.search-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 28px;
+}
 .search-box {
-  display: flex; align-items: center; background: #fff; border-radius: 24px;
-  padding: 10px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex; align-items: center; background: var(--card);
+  border: 2px solid var(--border); border-radius: 50px;
+  padding: 10px 20px; transition: border-color .2s, box-shadow .2s;
 }
+.search-box:focus-within {
+  border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.search-box svg { flex-shrink: 0; color: #94a3b8; }
 .search-box input {
-  flex: 1; border: none; outline: none; font-size: 15px; padding: 4px 0;
-  background: transparent;
+  flex: 1; border: none; outline: none; font-size: 15px;
+  padding: 8px 12px; background: transparent; color: var(--text);
 }
-.search-box input::placeholder { color: #bbb; }
-.clear-btn {
-  width: 28px; height: 28px; border-radius: 50%; background: #e0e0e0;
-  color: #fff; border: none; font-size: 14px; cursor: pointer; display: none;
-  align-items: center; justify-content: center;
+.search-box input::placeholder { color: #94a3b8; }
+.search-clear {
+  width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0;
+  color: #64748b; border: none; font-size: 14px; cursor: pointer;
+  display: none; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.clear-btn.show { display: flex; }
-.result-hint { padding: 0 20px 8px; font-size: 12px; color: #999; display: none; }
-.result-hint.show { display: block; }
+.search-clear.visible { display: flex; }
+.search-hint {
+  max-width: 1100px; margin: 6px auto 0; padding: 0 28px;
+  font-size: 13px; color: var(--text-secondary); display: none;
+}
+.search-hint.visible { display: block; }
 
-/* 列表 */
-.list { padding: 0 14px 40px; }
+/* ========== 主内容区 ========== */
+.main {
+  max-width: 1100px; margin: 0 auto; padding: 12px 28px 60px;
+}
 
-/* 卡片 */
+/* 网格布局：桌面端两列 */
+.card-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+}
+
+/* ========== 卡片 ========== */
 .card {
-  background: #fff; border-radius: 12px; margin-bottom: 10px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04); overflow: hidden;
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  transition: box-shadow .2s;
+  border: 1px solid var(--border);
 }
-.card.emergency { border-left: 4px solid #e74c3c; background: #fffafa; }
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* 急会诊卡片 */
+.card.emergency {
+  border-left: 4px solid var(--red);
+  background: var(--red-light);
+}
+.card.emergency .card-head {
+  background: linear-gradient(90deg, #fee2e2, #fff);
+}
+.card.emergency .card-name { color: #b91c1c; }
+
+/* 急会诊占满整行 */
+.card.emergency-full { grid-column: 1 / -1; }
+
+/* 卡片头部 */
 .card-head {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 16px; cursor: pointer; user-select: none;
+  padding: 16px 20px; cursor: pointer; user-select: none;
+  transition: background .15s;
 }
-.card.emergency .card-head { background: linear-gradient(90deg, #fef0f0, #fff); }
-.card-head:active { background: #fafafa; }
-.card-left { display: flex; align-items: center; gap: 8px; flex: 1; }
-.card-name {
-  font-size: 16px; font-weight: 600; color: #1a1a1a;
-}
-.card.emergency .card-name { color: #c0392b; }
+.card-head:hover { background: #f8fafc; }
+.card.emergency .card-head:hover { background: #fef2f2; }
+.card-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.card-icon { font-size: 20px; flex-shrink: 0; }
+.card-name { font-size: 16px; font-weight: 600; color: var(--text); }
 .card-badge {
-  font-size: 11px; padding: 2px 8px; border-radius: 8px;
-  background: #fff3e0; color: #e67e22;
+  font-size: 11px; padding: 3px 10px; border-radius: 12px;
+  background: #fef3c7; color: #92400e; white-space: nowrap;
 }
-.call-mini {
-  width: 40px; height: 40px; border-radius: 50%; background: #e8f4fd;
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-  margin-right: 8px; flex-shrink: 0;
+.card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.quick-call {
+  width: 38px; height: 38px; border-radius: 50%; background: var(--blue-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; text-decoration: none; transition: background .15s;
 }
-.arrow { font-size: 20px; color: #bbb; transition: transform 0.2s; }
-.arrow.open { transform: rotate(90deg); }
+.quick-call:hover { background: #dbeafe; }
+.chevron {
+  font-size: 18px; color: #94a3b8; transition: transform .25s;
+  flex-shrink: 0;
+}
+.chevron.open { transform: rotate(90deg); }
 
-/* 展开内容 */
-.card-body { display: none; padding: 0 16px 14px; border-top: 1px solid #f2f2f2; }
+/* 卡片展开内容 */
+.card-body { display: none; padding: 0 20px 16px; border-top: 1px solid var(--border); }
 .card-body.open { display: block; }
 .entry {
-  padding: 12px 0; border-bottom: 1px solid #fafafa;
+  padding: 14px 0; border-bottom: 1px solid #f1f5f9;
 }
-.entry:last-child { border-bottom: none; }
+.entry:last-child { border-bottom: none; padding-bottom: 4px; }
+
+/* 子专业标题 */
 .entry-title {
-  font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px;
+  font-size: 14px; font-weight: 600; color: var(--text);
+  margin-bottom: 6px;
 }
-.entry-info { font-size: 13px; color: #666; margin-bottom: 8px; }
-.entry-info span { margin-right: 12px; }
-.info-label { color: #999; }
+.entry-meta {
+  font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 16px;
+}
+.entry-meta-item { display: flex; align-items: center; gap: 4px; }
+.entry-meta-label { color: #94a3b8; font-size: 12px; }
 
 /* 电话行 */
 .phone-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 12px; background: #f8fafc; border-radius: 10px;
+  padding: 10px 14px; background: #f8fafc; border-radius: 10px;
+  gap: 12px;
 }
 .phone-link {
-  display: flex; align-items: center; gap: 10px; text-decoration: none;
-  color: inherit; flex: 1;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit; flex: 1; min-width: 0;
 }
+.phone-link:hover .phone-num { text-decoration: underline; }
+.phone-icon-circle {
+  width: 36px; height: 36px; border-radius: 50%; background: #dbeafe;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.phone-detail { min-width: 0; }
 .phone-num {
-  font-size: 16px; font-weight: 700; color: #2C7FB8;
+  font-size: 16px; font-weight: 700; color: var(--blue); letter-spacing: .5px;
 }
-.phone-full-num { font-size: 11px; color: #999; margin-left: 4px; }
-.phone-label { font-size: 11px; color: #999; display: block; }
+.phone-full-num {
+  font-size: 11px; color: #94a3b8; margin-left: 6px; white-space: nowrap;
+}
+.phone-label { font-size: 11px; color: #94a3b8; margin-top: 1px; }
 .copy-btn {
-  padding: 6px 14px; background: #e8f4fd; color: #2C7FB8;
-  border: none; border-radius: 6px; font-size: 12px; cursor: pointer;
+  padding: 7px 16px; background: var(--blue-light); color: var(--blue);
+  border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px;
+  cursor: pointer; white-space: nowrap; transition: all .15s;
 }
-.copy-btn:active { background: #d0e8f8; }
+.copy-btn:hover { background: #dbeafe; border-color: #93c5fd; }
+
+/* ========== 空状态 ========== */
+.empty-state {
+  text-align: center; padding: 80px 20px; color: var(--text-secondary);
+  grid-column: 1 / -1;
+}
+.empty-icon { font-size: 56px; margin-bottom: 16px; opacity: .6; }
+.empty-state p { font-size: 16px; }
+.empty-state .sub { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+
+/* ========== Toast ========== */
 .toast {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  background: rgba(0,0,0,0.75); color: #fff; padding: 10px 24px;
-  border-radius: 8px; font-size: 14px; z-index: 999; pointer-events: none;
-  opacity: 0; transition: opacity 0.3s;
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: #fff; padding: 10px 28px;
+  border-radius: 10px; font-size: 14px; z-index: 999; pointer-events: none;
+  opacity: 0; transition: opacity .3s, transform .3s;
+  transform: translateX(-50%) translateY(10px);
 }
-.toast.show { opacity: 1; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* 空状态 */
-.empty { text-align: center; padding: 60px 20px; color: #999; }
-.empty .icon { font-size: 48px; margin-bottom: 12px; }
+/* ========== 底部 ========== */
+.footer {
+  text-align: center; padding: 32px; color: #94a3b8; font-size: 12px;
+  max-width: 1100px; margin: 0 auto;
+}
 
-/* 底部 */
-.footer { text-align: center; padding: 24px; color: #bbb; font-size: 12px; }
+/* ========== 响应式：手机端 ========== */
+@media (max-width: 768px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .card.emergency-full { grid-column: 1; }
+  .header-inner { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .header-stats { gap: 16px; }
+  .header-title { font-size: 19px; }
+  .main { padding: 8px 14px 40px; }
+  .search-inner { padding: 0 14px; }
+  .search-bar { top: 100px; }
+  .card-head { padding: 14px 16px; }
+  .card-body { padding: 0 16px 14px; }
+  .card-name { font-size: 15px; }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>📋 齐鲁搬砖手册</h1>
-  <div class="sub" id="monthInfo">会诊排班</div>
-</div>
-
-<div class="search-wrap">
-  <div class="search-box">
-    <span style="opacity:0.4;margin-right:6px;">🔍</span>
-    <input type="text" id="searchInput" placeholder="搜索专业名称（如：心血管、骨科...）" oninput="doSearch()">
-    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+<!-- 顶部 -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title">🏥 齐鲁搬砖手册</div>
+    <div class="header-stats">
+      <span><span class="num" id="totalCount">—</span> 个专业</span>
+      <span id="monthLabel">—</span>
+    </div>
   </div>
+</header>
+
+<!-- 搜索 -->
+<div class="search-bar">
+  <div class="search-inner">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索专业名称（心血管、骨科、麻醉…）" oninput="doSearch()">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+  <div class="search-hint" id="searchHint"></div>
 </div>
-<div class="result-hint" id="resultHint"></div>
 
-<div class="list" id="list"></div>
+<!-- 主内容 -->
+<main class="main">
+  <div class="card-grid" id="cardGrid"></div>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <p id="emptyMsg">未找到匹配的专业</p>
+    <p class="sub">请尝试其他关键词</p>
+  </div>
+</main>
 
-<div class="empty" id="empty" style="display:none">
-  <div class="icon">🔍</div>
-  <div>未找到匹配的专业</div>
-  <div style="color:#bbb;font-size:12px;margin-top:4px;">请尝试其他关键词</div>
-</div>
-
-<div class="footer">💡 点击专业名展开查看详情，点击电话直接拨打</div>
-
+<div class="footer">💡 点击专业名称展开查看病区和电话 · 点击电话直接拨打 · 点「复制」保存号码</div>
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
 <script>
-// ===== 电话号转换 =====
 function fullPhone(p) {
   if (!p) return '';
-  if (/^\d{5}$/.test(p)) return '821' + p;
-  return p;
+  return /^\d{5}$/.test(p) ? '821' + p : p;
 }
 function isShort(p) { return /^\d{5}$/.test(p); }
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-// ===== 渲染 =====
 let expanded = {};
 let searchWord = '';
 
 function render() {
-  const list = document.getElementById('list');
-  const empty = document.getElementById('empty');
+  const grid = document.getElementById('cardGrid');
+  const empty = document.getElementById('emptyState');
   const kw = searchWord.toLowerCase();
   let items = DATA.specialties;
 
@@ -174,71 +292,73 @@ function render() {
     items = items.filter(item => {
       if (item.specialty.toLowerCase().includes(kw)) return true;
       return item.entries.some(e =>
-        (e.ward||'').includes(kw) || (e.scope||'').includes(kw) ||
-        (e.location||'').includes(kw) || (e.phone||'').includes(kw) ||
+        (e.ward||'').toLowerCase().includes(kw) ||
+        (e.scope||'').toLowerCase().includes(kw) ||
+        (e.location||'').toLowerCase().includes(kw) ||
+        (e.phone||'').includes(kw) ||
         fullPhone(e.phone).includes(kw)
       );
     });
-    // 急会诊置顶
+    // 急会诊始终置顶
     const ei = items.findIndex(i => i.id === 'emergency');
     if (ei > 0) { const e = items.splice(ei,1)[0]; items.unshift(e); }
   }
 
+  document.getElementById('searchHint').classList.toggle('visible', kw.length > 0);
+  if (kw) {
+    document.getElementById('searchHint').textContent = `找到 ${items.length} 个匹配专业`;
+  }
+
   if (items.length === 0) {
-    list.innerHTML = '';
+    grid.innerHTML = '';
     empty.style.display = 'block';
-    document.getElementById('resultHint').classList.remove('show');
+    document.getElementById('emptyMsg').textContent = kw ? `未找到"${esc(kw)}"相关专业` : '暂无会诊排班数据';
     return;
   }
   empty.style.display = 'none';
 
-  if (kw) {
-    const h = document.getElementById('resultHint');
-    h.textContent = `找到 ${items.length} 个匹配专业`;
-    h.classList.add('show');
-  } else {
-    document.getElementById('resultHint').classList.remove('show');
-  }
-
-  list.innerHTML = items.map(item => {
-    const isEmergency = item.isEmergency || false;
+  grid.innerHTML = items.map((item, idx) => {
+    const em = item.isEmergency || false;
     const open = expanded[item.id] || false;
-    const entryCount = item.entries.length;
+    const n = item.entries.length;
+    // 急会诊：桌面端占满行，且第一个渲染
+    const fullClass = (em && window.innerWidth > 768) ? ' emergency-full' : '';
 
     let entriesHtml = item.entries.map(entry => {
       const fp = fullPhone(entry.phone);
-      const short = isShort(entry.phone);
+      const s = isShort(entry.phone);
       return `
         <div class="entry">
           ${entry.scope && entry.scope !== '全部病区' ? `<div class="entry-title">${esc(entry.scope)}</div>` : ''}
-          <div class="entry-info">
-            ${entry.ward ? `<span><span class="info-label">病区</span> ${esc(entry.ward)}</span>` : ''}
-            ${entry.location ? `<span><span class="info-label">位置</span> ${esc(entry.location)}</span>` : ''}
+          <div class="entry-meta">
+            ${entry.ward ? `<span class="entry-meta-item"><span class="entry-meta-label">病区</span> ${esc(entry.ward)}</span>` : ''}
+            ${entry.location ? `<span class="entry-meta-item"><span class="entry-meta-label">位置</span> ${esc(entry.location)}</span>` : ''}
           </div>
           <div class="phone-row">
             <a class="phone-link" href="tel:${fp}">
-              <span style="font-size:22px;">📞</span>
-              <div>
+              <div class="phone-icon-circle">📞</div>
+              <div class="phone-detail">
                 <span class="phone-num">${esc(entry.phone)}</span>
-                ${short ? `<span class="phone-full-num">（全号：${fp}）</span>` : ''}
-                <span class="phone-label">${esc(entry.label)}</span>
+                ${s ? `<span class="phone-full-num">全号 ${fp}</span>` : ''}
+                <div class="phone-label">${esc(entry.label)}</div>
               </div>
             </a>
-            <button class="copy-btn" onclick="event.stopPropagation();copyText('${fp}')">复制</button>
+            <button class="copy-btn" onclick="event.stopPropagation();event.preventDefault();copyText('${fp}')">复制</button>
           </div>
         </div>`;
     }).join('');
 
     return `
-      <div class="card ${isEmergency ? 'emergency' : ''}">
+      <div class="card ${em ? 'emergency' : ''}${fullClass}">
         <div class="card-head" onclick="toggleCard('${item.id}')">
           <div class="card-left">
+            <span class="card-icon">${em ? '🔴' : '🏥'}</span>
             <span class="card-name">${esc(item.specialty)}</span>
-            ${entryCount > 1 ? `<span class="card-badge">${entryCount}个分项</span>` : ''}
+            ${n > 1 ? `<span class="card-badge">${n}项</span>` : ''}
           </div>
-          <div style="display:flex;align-items:center;">
-            ${entryCount === 1 ? `<a class="call-mini" href="tel:${fullPhone(item.entries[0].phone)}" onclick="event.stopPropagation();">📞</a>` : ''}
-            <span class="arrow ${open ? 'open' : ''}">›</span>
+          <div class="card-right">
+            ${n === 1 ? `<a class="quick-call" href="tel:${fullPhone(item.entries[0].phone)}" onclick="event.stopPropagation();" title="快速拨号">📞</a>` : ''}
+            <span class="chevron ${open ? 'open' : ''}">▶</span>
           </div>
         </div>
         <div class="card-body ${open ? 'open' : ''}">${entriesHtml}</div>
@@ -251,39 +371,38 @@ function toggleCard(id) {
   render();
 }
 
-function esc(s) {
-  if (!s) return '';
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ===== 搜索 =====
 function doSearch() {
   searchWord = document.getElementById('searchInput').value.trim();
-  document.getElementById('clearBtn').classList.toggle('show', searchWord.length > 0);
+  document.getElementById('clearBtn').classList.toggle('visible', searchWord.length > 0);
   render();
 }
+
 function clearSearch() {
   document.getElementById('searchInput').value = '';
   searchWord = '';
-  document.getElementById('clearBtn').classList.remove('show');
+  document.getElementById('clearBtn').classList.remove('visible');
   render();
 }
 
-// ===== 复制 =====
 function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => showToast('已复制：' + text));
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1500);
+  navigator.clipboard.writeText(text).then(() => showToast('已复制：' + text)).catch(() => showToast('复制失败，请手动复制'));
 }
 
-// ===== 初始化 =====
-document.getElementById('monthInfo').textContent =
-  DATA.month + ' 会诊排班 · 共 ' + DATA.specialties.length + ' 个专业 · 更新：' + DATA.updateDate;
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// 初始化
+document.getElementById('totalCount').textContent = DATA.specialties.length;
+document.getElementById('monthLabel').textContent = DATA.month + ' · 更新：' + DATA.updateDate;
 render();
+
+// 窗口大小变化时刷新布局（急会诊占行策略变化）
+window.addEventListener('resize', () => render());
 </script>
 </body>
 </html>
