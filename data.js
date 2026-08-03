@@ -14,7 +14,7 @@
 
 var DATA = {
   month: "2026年8月",
-  updateDate: "2026-08-01",
+  updateDate: "2026-08-03",
 
   specialties: [
 
