@@ -4,7 +4,7 @@
 // 因此每月只改 data.js 无需动此文件；只有 index.html/buildings.html/本文件
 // 的"页面逻辑"变化时才需要 bump CACHE_NAME 版本号（让旧缓存失效）。
 
-const CACHE_NAME = 'qilu-v1';
+const CACHE_NAME = 'qilu-v2';
 
 const CORE = [
   '/',
@@ -12,6 +12,7 @@ const CORE = [
   '/data.js',
   '/manifest.json',
   '/buildings.html',
+  '/guide.html',
   '/icon-192.png',
   '/icon-512.png',
   '/icon-maskable-512.png',

@@ -210,6 +210,54 @@ body {
 }
 .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
+/* ========== 底部快捷入口 ========== */
+.quick-links {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  max-width: 1100px; margin: 10px auto 0; padding: 0 28px;
+}
+.ql-item {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 14px 16px; cursor: pointer;
+  text-decoration: none; color: var(--text); font-family: inherit; font-size: 14px;
+  transition: all .15s;
+}
+.ql-item:hover { border-color: #bfdbfe; box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.ql-icon { font-size: 22px; flex-shrink: 0; }
+.ql-text { min-width: 0; }
+.ql-text b { display: block; font-size: 14.5px; font-weight: 700; }
+.ql-text small { color: var(--text-secondary); font-size: 12px; }
+
+/* ========== 反馈弹窗 ========== */
+.modal {
+  display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 500;
+  background: rgba(15,23,42,.5); padding: 20px; overflow-y: auto;
+  align-items: center; justify-content: center;
+}
+.modal.show { display: flex; }
+.modal-box {
+  background: var(--card); border-radius: 16px; width: 100%; max-width: 460px;
+  padding: 22px; box-shadow: 0 20px 50px rgba(0,0,0,.25); max-height: 88vh; overflow-y: auto;
+}
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+.modal-box label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.modal-box select, .modal-box input, .modal-box textarea {
+  width: 100%; margin-top: 6px; padding: 10px 12px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 14px; font-family: inherit; color: var(--text);
+  background: #fff; outline: none; transition: border-color .15s;
+}
+.modal-box textarea { min-height: 96px; resize: vertical; }
+.modal-box select:focus, .modal-box input:focus, .modal-box textarea:focus { border-color: var(--blue); }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.modal-actions button {
+  flex: 1; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: inherit; border: 1px solid var(--border);
+  background: #fff; color: var(--text);
+}
+.modal-actions .primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.modal-actions .primary:disabled { opacity: .6; cursor: default; }
+
 /* ========== 空状态 ========== */
 .empty-state {
   text-align: center; padding: 80px 20px; color: var(--text-secondary);
@@ -248,6 +296,7 @@ body {
   .card-head { padding: 14px 16px; }
   .card-body { padding: 0 16px 14px; }
   .card-name { font-size: 15px; }
+  .quick-links { grid-template-columns: 1fr; padding: 0 14px; }
 }
 </style>
 </head>
@@ -287,7 +336,51 @@ body {
   </div>
 </main>
 
-<div class="footer">💡 点击专业名称展开查看病区和电话 · 点击电话直接拨打 · 点「复制」保存号码 · <a href="https://github.com/qlyxwkzh-shuigao/qilu-manual/issues/new?title=%E4%BC%9A%E8%AF%8A%E6%95%B0%E6%8D%AE%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener" style="color:#2563eb;font-weight:600;">📮 数据有误？反馈</a></div>
+<div class="quick-links">
+  <a class="ql-item" href="guide.html">
+    <span class="ql-icon">📱</span>
+    <span class="ql-text"><b>添加到手机桌面</b><small>像 App 一样用、可离线 · 点这里看教程</small></span>
+  </a>
+  <button class="ql-item" onclick="openFeedback('bug')">
+    <span class="ql-icon">📮</span>
+    <span class="ql-text"><b>数据有误？反馈</b><small>电话、病区写错了点这里告诉我们</small></span>
+  </button>
+  <button class="ql-item" onclick="openFeedback('wish')">
+    <span class="ql-icon">💡</span>
+    <span class="ql-text"><b>功能许愿</b><small>希望网站再加点什么功能</small></span>
+  </button>
+</div>
+
+<div class="footer">💡 点击专业名称展开查看病区和电话 · 点电话直接拨打 · 点 ☆ 收藏常会诊的科室</div>
+
+<!-- 反馈 / 功能许愿 弹窗（Netlify Forms，留言在 Netlify 后台 Forms 查看） -->
+<div class="modal" id="fbModal">
+  <div class="modal-box">
+    <div class="modal-title" id="fbTitle">📮 数据反馈</div>
+    <div class="modal-sub">你的每一条反馈我们都会看到，会尽快核对更新。</div>
+    <form id="fbForm" name="qilu-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="qilu-feedback">
+      <p style="display:none"><label>请勿填写此项 <input name="bot-field"></label></p>
+      <label>类型
+        <select name="类型" id="fbType">
+          <option value="数据纠错">数据纠错（电话 / 病区有误）</option>
+          <option value="功能建议">功能建议（希望增加的功能）</option>
+          <option value="其他">其他</option>
+        </select>
+      </label>
+      <label>内容
+        <textarea name="内容" id="fbContent" required placeholder="数据纠错示例：心血管内科的电话应为 65055。&#10;功能建议示例：希望能查检验科送检时间。"></textarea>
+      </label>
+      <label>联系方式（可不填，方便我们回复你）
+        <input name="联系方式" placeholder="微信号 / 手机号">
+      </label>
+      <div class="modal-actions">
+        <button type="button" onclick="closeFeedback()">取消</button>
+        <button type="submit" class="primary" id="fbSubmit">提交</button>
+      </div>
+    </form>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
@@ -448,6 +541,36 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
 }
+
+// ===== 反馈 / 功能许愿（提交到 Netlify Forms，无需登录，后台可查看） =====
+function openFeedback(kind) {
+  const typeSel = document.getElementById('fbType');
+  const title = document.getElementById('fbTitle');
+  if (kind === 'wish') { typeSel.value = '功能建议'; title.textContent = '💡 功能许愿'; }
+  else { typeSel.value = '数据纠错'; title.textContent = '📮 数据反馈'; }
+  document.getElementById('fbModal').classList.add('show');
+  setTimeout(() => document.getElementById('fbContent').focus(), 120);
+}
+function closeFeedback() {
+  document.getElementById('fbModal').classList.remove('show');
+}
+document.getElementById('fbModal').addEventListener('click', (e) => {
+  if (e.target.id === 'fbModal') closeFeedback();
+});
+document.getElementById('fbForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const btn = document.getElementById('fbSubmit');
+  btn.disabled = true; btn.textContent = '提交中…';
+  const body = new URLSearchParams(new FormData(this)).toString();
+  fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body })
+    .then((res) => {
+      if (!res.ok) throw new Error(res.status);
+      closeFeedback(); this.reset();
+      showToast('已提交，感谢你的反馈！');
+    })
+    .catch(() => showToast('提交失败，请检查网络后重试'))
+    .finally(() => { btn.disabled = false; btn.textContent = '提交'; });
+});
 
 // 初始化
 document.getElementById('totalCount').textContent = DATA.specialties.length;
