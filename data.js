@@ -1,6 +1,6 @@
 // ============================================
-// 会诊排班数据 - 齐鲁医院 2026年8月
-// 来源：附件 2026年8月普通会诊排班及反馈表(4).pdf
+// 会诊排班数据 - 齐鲁医院 2026年9月
+// 来源：附件.山东大学齐鲁医院2026年9月普通会诊排班及反馈表.pdf
 //
 // 层级结构（严格遵循Word表格）：
 //   specialty（一级）= Word第1列「专业」
@@ -13,8 +13,8 @@
 // ============================================
 
 var DATA = {
-  month: "2026年8月",
-  updateDate: "2026-08-03",
+  month: "2026年9月",
+  updateDate: "2026-09-10",
 
   specialties: [
 
@@ -69,15 +69,15 @@ var DATA = {
       id: "cardiology",
       specialty: "心血管内科",
       entries: [
-        { scope: "华美楼、妇儿楼", ward: "心血管内科三病区", location: "齐鲁楼南塔十二层", phone: "65060", label: "护士站" },
-        { scope: "其余病区", ward: "心血管内科一病区", location: "齐鲁楼南塔十一层", phone: "65042", label: "护士站" }
+        { scope: "华美楼、妇儿楼", ward: "心血管内科CCU病区", location: "齐鲁楼南塔十一层", phone: "65054", label: "护士站" },
+        { scope: "其余病区", ward: "心血管内科二病区", location: "齐鲁楼南塔十一层", phone: "65048", label: "护士站" }
       ]
     },
     {
       id: "respiratory",
       specialty: "呼吸与危重症医学科",
       entries: [
-        { scope: "", ward: "呼吸与危重症医学科二病区", location: "齐鲁楼南塔八层", phone: "65261", label: "护士站" }
+        { scope: "", ward: "呼吸与危重症医学科一病区", location: "齐鲁楼南塔八层", phone: "65255", label: "护士站" }
       ]
     },
     {
@@ -91,15 +91,14 @@ var DATA = {
       id: "gastroenterology",
       specialty: "消化内科",
       entries: [
-        { scope: "8月1日-8月17日", ward: "消化内科一病区", location: "齐鲁楼南塔九层", phone: "65267", label: "护士站" },
-        { scope: "8月18日-8月31日", ward: "消化内科二病区", location: "齐鲁楼南塔九层", phone: "65292", label: "护士站" }
+        { scope: "", ward: "消化内科二病区", location: "齐鲁楼南塔九层", phone: "65292", label: "护士站" }
       ]
     },
     {
       id: "neurology",
       specialty: "神经内科",
       entries: [
-        { scope: "", ward: "神经内科二病区", location: "南塔十三层", phone: "65450", label: "护士站" }
+        { scope: "", ward: "神经内科三病区", location: "南塔十三层", phone: "65432", label: "护士站" }
       ]
     },
     {
@@ -306,7 +305,7 @@ var DATA = {
       id: "urology",
       specialty: "泌尿外科",
       entries: [
-        { scope: "", ward: "F11C病区", location: "", phone: "66701", label: "护士站" }
+        { scope: "", ward: "泌尿外科创新病区", location: "健康楼南一病区", phone: "69519", label: "护士站" }
       ]
     },
     {
@@ -336,15 +335,15 @@ var DATA = {
       id: "obgyn",
       specialty: "妇产科",
       entries: [
-        { scope: "妇科", ward: "妇科六病区", location: "", phone: "65912", label: "医生办公室" },
-        { scope: "产科", ward: "产科一病区", location: "", phone: "65832", label: "医生办公室" }
+        { scope: "妇科", ward: "妇科四病区", location: "", phone: "65892", label: "医生办公室" },
+        { scope: "产科", ward: "产科二病区", location: "", phone: "65842", label: "医生办公室" }
       ]
     },
     {
       id: "neurosurgery",
       specialty: "神经外科",
       entries: [
-        { scope: "", ward: "F9C病区", location: "", phone: "66621", label: "F9C护士站" }
+        { scope: "", ward: "F9D病区", location: "", phone: "66631", label: "F9D护士站" }
       ]
     },
     {
