@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>齐鲁会诊 · 每月更新版</title>
 <style>
 :root {
@@ -188,6 +191,25 @@ body {
 }
 .copy-btn:hover { background: #dbeafe; border-color: #93c5fd; }
 
+/* ========== 收藏按钮 ========== */
+.fav-btn {
+  width: 38px; height: 38px; border-radius: 50%; border: none;
+  background: #fffbeb; color: #d97706; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.fav-btn:hover { background: #fef3c7; transform: scale(1.08); }
+.fav-btn.on { background: #fef3c7; color: #f59e0b; }
+
+/* 收藏分组分隔线 */
+.section-divider {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--text-secondary); font-size: 13px; font-weight: 600;
+  padding: 8px 4px 0; margin-top: 4px;
+}
+.section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
 /* ========== 空状态 ========== */
 .empty-state {
   text-align: center; padding: 80px 20px; color: var(--text-secondary);
@@ -265,7 +287,7 @@ body {
   </div>
 </main>
 
-<div class="footer">💡 点击专业名称展开查看病区和电话 · 点击电话直接拨打 · 点「复制」保存号码</div>
+<div class="footer">💡 点击专业名称展开查看病区和电话 · 点击电话直接拨打 · 点「复制」保存号码 · <a href="https://github.com/qlyxwkzh-shuigao/qilu-manual/issues/new?title=%E4%BC%9A%E8%AF%8A%E6%95%B0%E6%8D%AE%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener" style="color:#2563eb;font-weight:600;">📮 数据有误？反馈</a></div>
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
@@ -282,6 +304,19 @@ function esc(s) {
 
 let expanded = {};
 let searchWord = '';
+
+// 收藏（localStorage 持久化，按设备保存）
+let favs = [];
+try { favs = JSON.parse(localStorage.getItem('qilu_favs') || '[]'); } catch (e) { favs = []; }
+function saveFavs() { try { localStorage.setItem('qilu_favs', JSON.stringify(favs)); } catch (e) {} }
+function toggleFav(ev, id) {
+  ev.stopPropagation();
+  const i = favs.indexOf(id);
+  if (i >= 0) { favs.splice(i, 1); showToast('已取消收藏'); }
+  else { favs.push(id); showToast('已收藏，将置顶显示'); }
+  saveFavs();
+  render();
+}
 
 function render() {
   const grid = document.getElementById('cardGrid');
@@ -305,6 +340,13 @@ function render() {
     if (ei > 0) { const e = items.splice(ei,1)[0]; items.unshift(e); }
   }
 
+  // 排序：急会诊(2) > 收藏(1) > 普通(0)
+  items.sort((a, b) => {
+    const ra = a.id === 'emergency' ? 2 : (favs.includes(a.id) ? 1 : 0);
+    const rb = b.id === 'emergency' ? 2 : (favs.includes(b.id) ? 1 : 0);
+    return rb - ra;
+  });
+
   document.getElementById('searchHint').classList.toggle('visible', kw.length > 0);
   if (kw) {
     document.getElementById('searchHint').textContent = `找到 ${items.length} 个匹配专业`;
@@ -318,12 +360,13 @@ function render() {
   }
   empty.style.display = 'none';
 
-  grid.innerHTML = items.map((item, idx) => {
+  const cards = items.map((item, idx) => {
     const em = item.isEmergency || false;
     const open = expanded[item.id] || false;
     const n = item.entries.length;
     // 急会诊：桌面端占满行，且第一个渲染
     const fullClass = (em && window.innerWidth > 768) ? ' emergency-full' : '';
+    const isFav = favs.includes(item.id);
 
     let entriesHtml = item.entries.map(entry => {
       const fp = fullPhone(entry.phone);
@@ -359,12 +402,21 @@ function render() {
           </div>
           <div class="card-right">
             ${n === 1 ? `<a class="quick-call" href="tel:${fullPhone(item.entries[0].phone)}" onclick="event.stopPropagation();" title="快速拨号">📞</a>` : ''}
+            <button class="fav-btn${isFav ? ' on' : ''}" onclick="toggleFav(event,'${item.id}')" title="${isFav ? '取消收藏' : '收藏并置顶'}">${isFav ? '★' : '☆'}</button>
             <span class="chevron ${open ? 'open' : ''}">▶</span>
           </div>
         </div>
         <div class="card-body ${open ? 'open' : ''}">${entriesHtml}</div>
       </div>`;
-  }).join('');
+  });
+
+  // 在第一个收藏卡片前插入分组标题
+  const firstFav = items.findIndex(it => it.id !== 'emergency' && favs.includes(it.id));
+  if (firstFav > -1) {
+    cards.splice(firstFav, 0, `<div class="section-divider">⭐ 我的收藏</div>`);
+  }
+
+  grid.innerHTML = cards.join('');
 }
 
 function toggleCard(id) {
@@ -404,6 +456,13 @@ render();
 
 // 窗口大小变化时刷新布局（急会诊占行策略变化）
 window.addEventListener('resize', () => render());
+
+// PWA：注册 Service Worker（离线缓存）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
